@@ -1,0 +1,19 @@
+{
+    "problem": {
+        "name": "traveling_salesman_problem",
+        "benchmark": "problem_1",
+        "move_generator": "swap_two_points"
+    },
+    "algorithm": {
+        "name": "first_choice_hill_climbing"
+    },
+    "solver_config": {
+        "max_iter": 10000,
+        "time_limit": 60000
+    },
+    "visualization": {
+        "enabled": true,
+        "min_time_between_steps": 0.00001
+    },
+    "algorithm_monitor": true
+}

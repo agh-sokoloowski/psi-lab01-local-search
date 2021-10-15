@@ -17,11 +17,10 @@ class KempeChainMove(Move[GraphColoringState]):
         self.old_color = self.state.coloring[idx].color
 
     def _kempe_chain(self, coloring: List[Vertex]):
-        #TODO: to the kempe chain thing
+        # TODO: to the kempe chain thing
         # tip 1. it's just a BFS search over the graph
         # tip 2. self.graph[c] are the neighbors of node c
         pass
-
 
     def make(self) -> GraphColoringState:
         new_coloring = copy.deepcopy(self.state.coloring)
@@ -33,19 +32,17 @@ class KempeChainMove(Move[GraphColoringState]):
 class KempeChain(GraphColoringMoveGenerator):
 
     def random_moves(self, state: GraphColoringState) -> Generator[KempeChainMove, None, None]:
-        used_colors = set([v.color for v in state.coloring])
         while True:
             idx = random.randrange(self.n_vertices)
-            available_colors = tuple(used_colors.difference({state.coloring[idx].color}))
+            available_colors = self.get_available_colors(idx, state)
             yield KempeChainMove(self.graph,
                                  state,
                                  idx=random.randrange(self.n_vertices),
                                  color=random.choice(available_colors))
 
     def available_moves(self, state: GraphColoringState) -> Generator[KempeChainMove, None, None]:
-        used_colors = set([v.color for v in state.coloring])
         for idx in range(self.n_vertices):
-            for color in used_colors:
+            for color in self.get_available_colors(idx, state):
                 if state.coloring[idx].color == color:
                     continue
                 yield KempeChainMove(self.graph, state, idx, color)

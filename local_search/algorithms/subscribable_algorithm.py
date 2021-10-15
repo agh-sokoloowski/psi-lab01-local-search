@@ -1,5 +1,7 @@
 from abc import abstractmethod, ABC
-from typing import Generator, List, Union
+import dataclasses
+from typing import Generator, Generic, List, TypeVar, Union
+from bisect import insort_right
 
 from local_search.algorithm_subscribers.algorithm_subscriber import AlgorithmSubscriber
 from local_search.helpers.camel_to_snake import camel_to_snake
@@ -7,6 +9,29 @@ from local_search.algorithms.algorithm import Algorithm
 from local_search.algorithms.algorithm_config import DEFAULT_CONFIG, AlgorithmConfig
 from local_search.problems.base.problem import Problem
 from local_search.problems.base.state import State
+from dataclasses import dataclass
+
+
+TSubscriber = TypeVar("TSubscriber", bound=AlgorithmSubscriber)
+
+MIN_NICENCESS = -20
+MAX_NICENCESS = 19
+
+
+@dataclass
+class Subscription(Generic[TSubscriber]):
+    niceness: int
+    subscribable: 'SubscribableAlgorithm'
+    subscriber: TSubscriber
+
+    def __post_init__(self):
+        self.subscriber.bind(self.subscribable)
+
+    def close(self):
+        self.subscribable.unsubscribe(self)
+
+    def __lt__(self, other):
+        return self.niceness < other.niceness
 
 
 class SubscribableAlgorithm(Algorithm):
@@ -16,12 +41,13 @@ class SubscribableAlgorithm(Algorithm):
     algorithms = {}
 
     def __init__(self, config: AlgorithmConfig = None):
-        super().__init__()
-        config = config or DEFAULT_CONFIG
-        self.config = config
+        super().__init__(
+            best_obj=None,
+            best_state=None,
+            config=config or DEFAULT_CONFIG
+        )
         self.steps_from_last_state_update = 0
-        self.best_obj, self.best_state = None, None
-        self._subscribers: List[AlgorithmSubscriber] = []
+        self._subscribtions: List[Subscription] = []
 
     def __init_subclass__(cls) -> None:
         if ABC not in cls.__bases__:
@@ -34,66 +60,35 @@ class SubscribableAlgorithm(Algorithm):
         Finds next state for model. Returns None in case if state is optimal.
         """
 
-    def _random_restart(self, model: Problem) -> State:
-        """
-        Returns a random state.
-        """
+    def _random_restart(self, model: Problem):
         return model.random_state()
 
-    def _perturb(self, model: Problem, size: int) -> State:
-        """
-        Returns a perturbed best state.
-        It repeatedly performs random moves
-        (size parameter tells how many times)
-        """
+    def _perturb(self, model: Problem, how_much: int):
         perturbed_state = self.best_state
-        for _ in range(size):
-            perturbed_state = next(
-                model.move_generator.random_moves(perturbed_state)).make()
+        for _ in range(how_much):
+            try:
+                perturbed_state = next(
+                    model.move_generator.random_moves(perturbed_state)).make()
+            except StopIteration:
+                pass
         return perturbed_state
 
     def _get_neighbours(self, model: Problem, state: State) -> Generator[State, None, None]:
-        """
-            Generates neighbors of the given state based on the neighborhood operator
-            defined in the problem.
-        """
         for move in model.move_generator.available_moves(state):
             neighbour = move.make()
             self._on_next_neighbour(model, state, neighbour)
             yield neighbour
 
     def _get_random_neighbours(self, model: Problem, state: State) -> Generator[State, None, None]:
-        """
-            Generates neighbors of the given state in the random fashion.
-
-            WARNING: this generator may never exhaust, so don't rely on its termination properties
-            tip. if you want to get just a single random neighbor, call it with next, i.e.
-                random_state = next(_get_random_neighbours(model, state)
-        """
         for move in model.move_generator.random_moves(state):
             neighbour = move.make()
             self._on_next_neighbour(model, state, neighbour)
             yield neighbour
 
-    def _is_stuck_in_local_optimum(self) -> bool:
-        """
-            Checks whether the algorithm got stuck in the local optimum.
-            Just checks how many times algorithm failed to improve the current solution.
-        """
+    def _is_stuck_in_local_optimum(self):
         return self.steps_from_last_state_update >= self.config.local_optimum_moves_threshold
 
     def next_state(self, model: Problem, state: State) -> Union[State, None]:
-        """
-            The local search skeleton:
-            — it tracks the best state (self.best_state)
-            — checks if the algorithm got stuck in the local optimum (self._is_stuck_in_local_optimum())
-                * if that's case, tries to escape the minimum (self.escape_local_optimum)
-            — repeatedly finds the next neighbor based on the implemented metaheuristics (_self._find_next_state)
-                * if there is no neighbhor — it terminates
-
-            The other methods (_on_next_state, _on_local_optimum_escape) just make sure the algorithm gets displayed
-            correctly and so on. Don't worry about this.
-        """
         if self.best_state is None:
             self.best_state = state
             self._on_next_state(model, state)
@@ -116,11 +111,6 @@ class SubscribableAlgorithm(Algorithm):
         return next_state
 
     def _update_algorithm_state(self, model: Problem, state, new_state: State):
-        """
-        Tracks the solving process:
-        - best_state
-        - number of steps since the last improvement (used to detect local optima)
-        """
         if self.best_state is None:
             self.best_state = new_state
 
@@ -133,25 +123,34 @@ class SubscribableAlgorithm(Algorithm):
             self.best_obj, self.best_state = model.objective_for(
                 new_state), new_state
 
-
     def _on_next_state(self, model: Problem, next_state: State):
         """Called when algorithm find new best state"""
-        for subscriber in self._subscribers:
-            subscriber.on_next_state(model, next_state)
+        for subscribtion in self._subscribtions:
+            subscribtion.subscriber.on_next_state(model, next_state)
 
     def _on_next_neighbour(self, model: Problem, from_state: State, next_neighbour: State):
         """Called when algorithm explores next neighbour"""
-        for subscriber in self._subscribers:
-            subscriber.on_next_neighbour(model, from_state, next_neighbour)
+        for subscribtion in self._subscribtions:
+            subscribtion.subscriber.on_next_neighbour(
+                model, from_state, next_neighbour)
 
     def _on_solution(self, model: Problem, solution: State):
-        for subscriber in self._subscribers:
-            subscriber.on_solution(model=model, solution=solution)
+        for subscribtion in self._subscribtions:
+            subscribtion.subscriber.on_solution(model=model, solution=solution)
 
     def _on_local_optimum_escape(self, model: Problem, from_state: State, to_state: Union[State, None]):
-        for subscriber in self._subscribers:
-            subscriber.on_local_optimum_escape(
+        for subscribtion in self._subscribtions:
+            subscribtion.subscriber.on_local_optimum_escape(
                 model=model, from_state=from_state, to_state=to_state)
 
-    def subscribe(self, subsriber: AlgorithmSubscriber):
-        self._subscribers.append(subsriber)
+    def subscribe(self, subscriber: TSubscriber, niceness=0) -> Subscription[TSubscriber]:
+        subscription = Subscription(
+            niceness=niceness,
+            subscriber=subscriber,
+            subscribable=self
+        )
+        insort_right(self._subscribtions, subscription)
+        return subscription
+
+    def unsubscribe(self, subscription: Subscription) -> None:
+        self._subscribtions.remove(subscription)

@@ -15,8 +15,8 @@ class FirstChoiceHillClimbing(HillClimbing):
 
     def _climb_the_hill(self, model: Problem, state: State) -> Union[State, None]:
         """
-        Returns the first improving neighbor.
-        Otherwise stays in the current state (indicating local optimum)
+                Returns the first improving neighbor.
+                Otherwise stays in the current state (indicating local optimum)
         """
         for neighbour in self._get_neighbours(model, state):
             if model.improvement(neighbour, state) > 0:

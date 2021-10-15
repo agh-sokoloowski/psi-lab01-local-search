@@ -24,6 +24,7 @@ class SimulatedAnnealingConfig(AlgorithmConfig):
     escape_perturbation_probability: float = 0.33
     escape_perturbation_size: int = 50
     escape_reheat_probability: float = 0.33
+    escape_reheat_ratio: float = 0.1
 
 
 DEFAULT_CONFIG = SimulatedAnnealingConfig()
@@ -63,7 +64,7 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         # - calculate probability of transition according to the metropolis function
         #   p = exp(delta / temperature)
         #   where: delta is the improvement of the objective function (model has a corresponding method)
-        # - use mpmath to calculate the exponential (mpmath.exp)
+        # - use mpmath to calculate the exponential
         pass
 
     def _update_temperature(self):
@@ -93,7 +94,7 @@ class SimulatedAnnealing(SubscribableAlgorithm):
 
     def _reheat(self, from_state: State):
         # TODO:
-        # — restore the initial temperature from config
+        # — restore the initial temperature from config (reheat_ratio * initial_temperature)
         # — reset cooling schedule (self.cooling_steps)
         # — reset self.steps_from_last_state_update
         # return the from state

@@ -2,6 +2,7 @@ from typing import List, Dict, Set
 
 from local_search.helpers.camel_to_snake import camel_to_snake
 from local_search.problems.base.move_generator import MoveGenerator
+from local_search.problems.graph_coloring_problem.state import GraphColoringState
 
 
 class GraphColoringMoveGenerator(MoveGenerator):
@@ -15,4 +16,7 @@ class GraphColoringMoveGenerator(MoveGenerator):
         self.n_vertices = n_vertices
         self.graph = graph
 
-# TODO add Kemp Chain
+    def get_available_colors(self, idx: int, state: GraphColoringState):
+        used_colors = set([v.color for v in state.coloring])
+        return tuple(
+            used_colors.difference({state.coloring[idx].color}))

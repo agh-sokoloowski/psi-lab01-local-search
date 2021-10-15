@@ -9,7 +9,7 @@ from local_search.problems.graph_coloring_problem.state import GraphColoringStat
 
 class GraphColoringGoal(Goal, ABC):
     """
-    Base class for goals of the traveling salesman problem
+    Base class for goals of the graph coloring problem
     """
     goals = {}
 
@@ -21,18 +21,18 @@ class GraphColoringGoal(Goal, ABC):
         GraphColoringGoal.goals[camel_to_snake(cls.__name__)] = cls
 
     def _num_colors(self, state: GraphColoringState) -> int:
-        #TODO:
+        # TODO:
         # return number of colors
         pass
 
     def _bad_edges(self, state: GraphColoringState) -> List[int]:
-        #TODO:
-        # return number of bad edges in the graph
+        # TODO:
+        # return number of bad edges of every color class in the graph
         # tip. self.edges is the list of 'Edge' in the graph
         pass
 
     def _color_classes(self, state: GraphColoringState) -> List[int]:
-        #TODO:
+        # TODO:
         # return sizes of the color classes
         pass
 

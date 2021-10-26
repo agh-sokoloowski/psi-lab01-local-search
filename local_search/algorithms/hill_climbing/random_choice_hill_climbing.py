@@ -1,4 +1,7 @@
 from typing import Union
+
+import numpy as np
+
 from local_search.algorithms.hill_climbing.hill_climbing import HillClimbing
 from local_search.problems.base.state import State
 from local_search.problems.base.problem import Problem
@@ -18,7 +21,7 @@ class RandomChoiceHillClimbing(HillClimbing):
         # - if it's improving state, return it
         #   otherwise return the current state
 
-        for neighbour in self._get_random_neighbours(model, state):
-            if model.improvement(neighbour, state) > 0:
-                return neighbour
+        neighbour = np.random.choice([i for i in self._get_random_neighbours(model, state)])
+        if model.improvement(neighbour, state) > 0:
+            return neighbour
         return state

@@ -16,11 +16,6 @@ class WorstChoiceHillClimbing(HillClimbing):
     """
 
     def _climb_the_hill(self, model: Problem, state: State) -> Union[State, None]:
-        # TODO:
-        # - go trough all the neighbors (_get_neighbours is your friend)
-        # - find the worst improving state (with minimal model.improvement(....) > 0)
-        # return it (or the current state if there is no improving state)!
-
         worst_improvement = {
             "improvement": np.inf,
             "neighbour": None

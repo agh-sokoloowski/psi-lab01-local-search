@@ -16,11 +16,6 @@ class RandomChoiceHillClimbing(HillClimbing):
     """
 
     def _climb_the_hill(self, model: Problem, state: State) -> Union[State, None]:
-        # TODO:
-        # - get single random neighbor (_get_random_neighbours is your friend)
-        # - if it's improving state, return it
-        #   otherwise return the current state
-
         neighbour = np.random.choice([i for i in self._get_random_neighbours(model, state)])
         if model.improvement(neighbour, state) > 0:
             return neighbour

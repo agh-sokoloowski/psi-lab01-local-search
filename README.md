@@ -6,22 +6,22 @@ Fill missing code according to the `TODO:` comments in the following files:
 - `local_search/algorithms/hill_climbing/best_choice_hill_climbing.py`
 - `local_search/algorithms/hill_climbing/random_choice_hill_climbing.py`
 - `local_search/algorithms/hill_climbing/worst_choice_hill_climbing.py`
-- `local_search/algorithms/hill_climbing/simulated_annealing.py`
+- `local_search/algorithms/simulated_annealing.py`
 - `local_search/problems/graph_coloring_problem/moves/kempe_chain.py`
 - `local_search/problems/graph_coloring_problem/goals/goal.py`
 
 ## Grading
 
-* [ ] Make sure, you have a **private** group
+* [x] Make sure, you have a **private** group
   * [how to create a group](https://docs.gitlab.com/ee/user/group/#create-a-group)
-* [ ] Fork this project into your private group
+* [x] Fork this project into your private group
   * [how to create a fork](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#creating-a-fork)
-* [ ] Add @bobot-is-a-bot as the new project's member (role: **maintainer**)
+* [x] Add @bobot-is-a-bot as the new project's member (role: **maintainer**)
   * [how to add an user](https://docs.gitlab.com/ee/user/project/members/index.html#add-a-user)
 
 ## How To Submit Solutions
 
-* [ ] Clone repository: git clone:
+* [x] Clone repository: git clone:
     ```bash
     git clone <repository url>
     ```

@@ -17,4 +17,8 @@ class RandomChoiceHillClimbing(HillClimbing):
         # - get single random neighbor (_get_random_neighbours is your friend)
         # - if it's improving state, return it
         #   otherwise return the current state
-        pass
+
+        for neighbour in self._get_random_neighbours(model, state):
+            if model.improvement(neighbour, state) > 0:
+                return neighbour
+        return state

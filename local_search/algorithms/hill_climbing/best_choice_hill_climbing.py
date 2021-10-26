@@ -4,6 +4,7 @@ from local_search.algorithms.hill_climbing.hill_climbing import HillClimbing
 from local_search.problems.base.state import State
 from local_search.problems.base.problem import Problem
 
+
 class BestChoiceHillClimbing(HillClimbing):
     """
     Implementation of hill climbing local search.
@@ -18,4 +19,15 @@ class BestChoiceHillClimbing(HillClimbing):
         # - go trough all the neighbors (_get_neighbours is your friend)
         # - find the best improving state (maximal model.improvement(....) > 0)
         # return it (or the current state if there is no improving state)!
-        pass
+
+        best_improvement = {
+            "improvement": 0,
+            "neighbour": None
+        }
+
+        for neighbour in self._get_neighbours(model, state):
+            if model.improvement(neighbour, state) > best_improvement["improvement"]:
+                best_improvement["improvement"] = model.improvement(neighbour, state)
+                best_improvement["neighbour"] = neighbour
+
+        return best_improvement["neighbour"] if best_improvement["neighbour"] is not None else state

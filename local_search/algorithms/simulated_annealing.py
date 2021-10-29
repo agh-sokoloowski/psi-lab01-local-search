@@ -102,4 +102,8 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         # — reset cooling schedule (self.cooling_steps)
         # — reset self.steps_from_last_state_update
         # return the from state
-        pass
+        # pass
+        self.temperature = self.config.reheat_ratio * self.config.initial_temperature
+        self.cooling_steps
+        self.steps_from_last_state_update = 0
+        return from_state

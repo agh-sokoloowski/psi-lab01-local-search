@@ -50,14 +50,6 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         super().__init__(config=config)
 
     def _find_next_state(self, model: Problem, state: State) -> Union[State, None]:
-        # TODO:
-        # — find random neighbour (self._get_random_neighbours + `next` to read a single element)
-        # — if the neighbour is better then mark is as the next state
-        # — otherwise calculate the probability of transition using self._calculate_transition_probability
-        #   * use random.random() to check whether the neighbor should be a new state
-        # — update temperature
-        # — return the new state
-        # pass
         neighbour = next(self._get_random_neighbours(model, state))
         if model.improvement(neighbour, state) > 0:
             state = neighbour
@@ -69,12 +61,6 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         return state
 
     def _calculate_transition_probability(self, model: Problem, old_state: State, new_state: State) -> float:
-        # TODO:
-        # - calculate probability of transition according to the metropolis function
-        #   p = exp(delta / temperature)
-        #   where: delta is the improvement of the objective function (model has a corresponding method)
-        # - use mpmath to calculate the exponential
-        # pass
         return mpmath.exp(model.improvement(old_state, new_state) / self.temperature)
 
     def _update_temperature(self):
@@ -100,12 +86,6 @@ class SimulatedAnnealing(SubscribableAlgorithm):
             return self._reheat(state)
 
     def _reheat(self, from_state: State):
-        # TODO:
-        # — restore the initial temperature from config (reheat_ratio * initial_temperature)
-        # — reset cooling schedule (self.cooling_time)
-        # — reset self.steps_from_last_state_update
-        # return the from state
-        # pass
         self.temperature = self.config.escape_reheat_ratio * self.config.initial_temperature
         self.cooling_time = 0
         self.steps_from_last_state_update = 0

@@ -68,14 +68,6 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         pass
 
     def _update_temperature(self):
-        # TODO:
-        # — update self.temperature according to the exponential decrease function:
-        #   T_k = T * a^k
-        #   where 'a' can be found in the config as the cooling_step
-        #   and k is stored as self.cooling_time
-        # - update self.cooling_time
-        # - the temperature can't go below self.config.min_temperature
-        # pass
         new_temperature = self.temperature * (self.config.cooling_step**self.cooling_time)
         self.cooling_time += 1
         if new_temperature < self.config.min_temperature:
@@ -100,11 +92,11 @@ class SimulatedAnnealing(SubscribableAlgorithm):
     def _reheat(self, from_state: State):
         # TODO:
         # — restore the initial temperature from config (reheat_ratio * initial_temperature)
-        # — reset cooling schedule (self.cooling_steps)
+        # — reset cooling schedule (self.cooling_time)
         # — reset self.steps_from_last_state_update
         # return the from state
         # pass
         self.temperature = self.config.reheat_ratio * self.config.initial_temperature
-        self.cooling_steps = 0
+        self.cooling_time = 0
         self.steps_from_last_state_update = 0
         return from_state

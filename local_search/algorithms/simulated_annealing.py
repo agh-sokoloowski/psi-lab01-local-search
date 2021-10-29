@@ -57,7 +57,16 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         #   * use random.random() to check whether the neighbor should be a new state
         # — update temperature
         # — return the new state
-        pass
+        # pass
+        neighbour = next(self._get_random_neighbours(model, state))
+        if model.improvement(neighbour, state) > 0:
+            state = neighbour
+        else:
+            probability = self._calculate_transition_probability(model, state, neighbour)
+            if probability >= random.random():
+                state = neighbour
+
+        return state
 
     def _calculate_transition_probability(self, model: Problem, old_state: State, new_state: State) -> float:
         # TODO:
@@ -65,7 +74,8 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         #   p = exp(delta / temperature)
         #   where: delta is the improvement of the objective function (model has a corresponding method)
         # - use mpmath to calculate the exponential
-        pass
+        # pass
+        return mpmath.exp(model.improvement(old_state, new_state) / self.temperature)
 
     def _update_temperature(self):
         new_temperature = self.temperature * (self.config.cooling_step**self.cooling_time)
@@ -96,7 +106,7 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         # — reset self.steps_from_last_state_update
         # return the from state
         # pass
-        self.temperature = self.config.reheat_ratio * self.config.initial_temperature
+        self.temperature = self.config.escape_reheat_ratio * self.config.initial_temperature
         self.cooling_time = 0
         self.steps_from_last_state_update = 0
         return from_state

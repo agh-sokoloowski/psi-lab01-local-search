@@ -77,8 +77,9 @@ class SimulatedAnnealing(SubscribableAlgorithm):
         # - the temperature can't go below self.config.min_temperature
         # pass
         new_temperature = self.temperature * (self.config.cooling_step**self.cooling_time)
-        if new_temperature >= self.config.min_temperature:
-            self.temperature = new_temperature
+        if new_temperature < self.config.min_temperature:
+            new_temperature = self.config.min_temperature
+        self.temperature = new_temperature
 
     def escape_local_optimum(self, model: Problem, state: State, best_state: State) -> Union[State, None]:
         self._local_optimum_escapes += 1

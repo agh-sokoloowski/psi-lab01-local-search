@@ -17,10 +17,16 @@ class KempeChainMove(Move[GraphColoringState]):
         self.old_color = self.state.coloring[idx].color
 
     def _kempe_chain(self, coloring: List[Vertex]):
-        # TODO: to the kempe chain thing
-        # tip 1. it's just a BFS search over the graph
-        # tip 2. self.graph[c] are the neighbors of node c
-        pass
+        visited = [self.idx]
+        queue = [self.idx]
+        while queue:
+            node = queue.pop(0)
+            for neighbour in self.graph[node]:
+                if neighbour not in visited:
+                    visited.append(neighbour)
+                    queue.append(neighbour)
+                    if coloring[neighbour].color == coloring[node].color:
+                        # TODO: zmienić kolor
 
     def make(self) -> GraphColoringState:
         new_coloring = copy.deepcopy(self.state.coloring)

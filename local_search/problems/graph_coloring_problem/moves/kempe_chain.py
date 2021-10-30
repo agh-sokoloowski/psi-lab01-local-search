@@ -26,9 +26,7 @@ class KempeChainMove(Move[GraphColoringState]):
                     visited.append(neighbour)
                     queue.append(neighbour)
                     if coloring[neighbour].color == coloring[node].color:
-                        a = self.color
-                        b = a + 1
-                        coloring[neighbour].color = a if coloring[node].color != a else b
+                        coloring[neighbour].color = 0 if coloring[node].color != 0 else 1
 
     def make(self) -> GraphColoringState:
         new_coloring = copy.deepcopy(self.state.coloring)
